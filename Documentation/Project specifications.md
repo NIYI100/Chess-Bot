@@ -48,5 +48,8 @@ This is a typical representation of the board.
 The expected time complexity of the algorithm is O(b^n) where b is the amount of branches (legal moves) in the MiniMax algorithm
 and n is the depth of the search. Even with alpha-beta pruning and the other optimizations in the O-notation it doesn't change.
 
-The expected space is O(b * n) for the default algorithm. The use of a transposition table doesn't change that,
-but it is still important to optimize the size because it has to be in memory and would be too large for every possible board state.
+The expected space is O(b * n) for the default algorithm. The use of a transposition table doesn't change that, if we use a table with
+static size and implement replacement strategies.
+But it is still important to optimize the size because it has to be in memory and would be too large for every possible board state.
+If we use a transposition table per turn then we get extra size of O(b^n). If we even save some turns that happened earlier
+then we arrive at O(m * b^n) where m is the amount of moves that will be saved.
