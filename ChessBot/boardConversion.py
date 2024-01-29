@@ -1,5 +1,5 @@
-from ChessBot.boardState import BoardState
-from myConstants import *
+from ChessBot.chessBoard import BoardState
+from pieceConstants import *
 
 white_kingside_castle_rights = True
 white_queenside_castle_rights = True

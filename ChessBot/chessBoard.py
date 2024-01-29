@@ -1,4 +1,4 @@
-from ChessBot.myConstants import *
+from ChessBot.pieceConstants import *
 
 
 class BoardState:

@@ -5,12 +5,12 @@
 import argparse
 import sys
 
-import boardState
+import chessBoard
 from boardConversion import set_fen_to_board
-from calculateMove import calculateMove
+from bestMoveGeneration import calculateMove
 
 def talk():
-    board = boardState.BoardState()
+    board = chessBoard.BoardState()
     depth = get_depth()
 
     while True:

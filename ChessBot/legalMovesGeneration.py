@@ -1,11 +1,13 @@
 # Pieces - naming as per FEN (Forsyth-Edwards Notation)
-from ChessBot.myConstants import *
+from ChessBot.pieceConstants import *
 
+
+# TODO - In the moment I only see a pin as a absolute pin where th epiece cant move at all
 
 # Calculate all the legal possible moves
 def get_legal_moves(state):
     moves = []
-    if (state.color == COLOR_WHITE):
+    if state.color == COLOR_WHITE:
         for y in range(8):
             for x in range(8):
                 match state.board[y][x]:
