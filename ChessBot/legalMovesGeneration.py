@@ -7,39 +7,136 @@ from ChessBot.pieceConstants import *
 # Calculate all the legal possible moves
 def get_legal_moves(state):
     moves = []
+    pinned_pieces = [[False] * 8] * 8
     if state.color == COLOR_WHITE:
         for y in range(8):
             for x in range(8):
-                match state.board[y][x]:
-                    case "P":
-                        moves += pawn_moves(state, x, y)
-                    case "R":
-                        moves += rook_moves(state, x, y)
-                    case "N":
-                        moves += knight_moves(state, x, y)
-                    case "B":
-                        moves += bishop_moves(state, x, y)
-                    case "K":
-                        moves += king_moves(state, x, y)
-                    case "Q":
-                        moves += queen_moves(state, x, y)
+                if not pinned_pieces[y][x]:
+                    match state.board[y][x]:
+                        case "P":
+                            moves += pawn_moves(state, x, y)
+                        case "R":
+                            moves += rook_moves(state, x, y)
+                        case "N":
+                            moves += knight_moves(state, x, y)
+                        case "B":
+                            moves += bishop_moves(state, x, y)
+                        case "K":
+                            moves += king_moves(state, x, y)
+                        case "Q":
+                            moves += queen_moves(state, x, y)
     else:
         for y in range(8):
             for x in range(8):
-                match state.board[y][x]:
-                    case "p":
-                        moves += pawn_moves(state, x, y)
-                    case "r":
-                        moves += rook_moves(state, x, y)
-                    case "n":
-                        moves += knight_moves(state, x, y)
-                    case "b":
-                        moves += bishop_moves(state, x, y)
-                    case "k":
-                        moves += king_moves(state, x, y)
-                    case "q":
-                        moves += queen_moves(state, x, y)
+                if not pinned_pieces[y][x]:
+                    match state.board[y][x]:
+                        case "p":
+                            moves += pawn_moves(state, x, y)
+                        case "r":
+                            moves += rook_moves(state, x, y)
+                        case "n":
+                            moves += knight_moves(state, x, y)
+                        case "b":
+                            moves += bishop_moves(state, x, y)
+                        case "k":
+                            moves += king_moves(state, x, y)
+                        case "q":
+                            moves += queen_moves(state, x, y)
     return moves
+
+# TODO - Calculate pins on diagonal
+def calculate_pins(state):
+    pins = []
+    found_one_friendly_unit = False
+    king = WHITE_KING if state.color == "w" else BLACK_KING
+    x, y = _find_king(state, king)
+
+    # Vertical
+    for i in range(1, 8):
+        if check_if_square_is_occupied_by_friendly_unit(state, x, y + i):
+            if found_one_friendly_unit:
+                break
+            pinned_x, pinned_y = x, y + i
+            found_one_friendly_unit = True
+        if check_if_square_is_capturable(state, x, y + i) and found_one_friendly_unit:
+            if state.board[y + i][x].upper() == (WHITE_ROOK or WHITE_QUEEN):
+                pins.append((pinned_x, pinned_y))
+                break
+    found_one_friendly_unit = False
+    for i in range(-1, -8, -1):
+        if check_if_square_is_occupied_by_friendly_unit(state, x, y + i):
+            if found_one_friendly_unit:
+                break
+            pinned_x, pinned_y = x, y + i
+            found_one_friendly_unit = True
+        if check_if_square_is_capturable(state, x, y + i) and found_one_friendly_unit:
+            if state.board[y + i][x].upper() == "R" or state.board[y + i][x].upper() == "Q":
+                pins.append((pinned_x, pinned_y))
+                break
+    # Horizontal
+    found_one_friendly_unit = False
+    for i in range(1, 8):
+        if check_if_square_is_occupied_by_friendly_unit(state, x + i, y):
+            if found_one_friendly_unit:
+                break
+            pinned_x, pinned_y = x + i, y
+        if check_if_square_is_capturable(state, x + i, y) and found_one_friendly_unit:
+            if state.board[y][x + i].upper() == (WHITE_ROOK or WHITE_QUEEN):
+                pins.append((pinned_x, pinned_y))
+                break
+    found_one_friendly_unit = False
+    for i in range(-1, -8, -1):
+        if check_if_square_is_occupied_by_friendly_unit(state, x + i, y):
+            if found_one_friendly_unit:
+                break
+            pinned_x, pinned_y = x + i, y
+        if check_if_square_is_capturable(state, x + i, y) and found_one_friendly_unit:
+            if state.board[y][x + i].upper() == (WHITE_ROOK or WHITE_QUEEN):
+                pins.append((pinned_x, pinned_y))
+                break
+
+    # Diagonal
+    return pins
+
+
+
+# TODO - Do I need this?
+"""
+def search_square_vertical(state, x, y, amount):
+    if check_if_square_is_empty(state, x, y + amount):
+        return EMPTY
+    if check_if_square_is_capturable(state, x, y + amount):
+        return CAPTURABLE
+    else:
+        return OCCUPIED
+    
+    
+def search_square_horizontal(state, x, y, amount):
+    if check_if_square_is_empty(state, x + amount, y):
+        return EMPTY
+    if check_if_square_is_capturable(state, x + amount, y):
+        return CAPTURABLE
+    else:
+        return OCCUPIED
+    
+    
+def search_square_diagonal(state, x, y, vertical, horizontal):
+    if check_if_square_is_empty(state, x + horizontal, y + vertical):
+        return EMPTY
+    if check_if_square_is_capturable(state, x + horizontal, y + vertical):
+        return CAPTURABLE
+    else:
+        return OCCUPIED
+ 
+"""
+
+def _find_king(state, king):
+    for i, row in enumerate(state.board):
+        if king in row:
+            print(row.index(king), i)
+            return row.index(king), i
+    return None
+
 
 
 def pawn_moves(state, x, y):
@@ -217,6 +314,15 @@ def check_if_square_is_capturable(state, x, y):
     if 0 <= x <= 7 and 0 <= y <= 7:
         if ((state.color == COLOR_WHITE and state.board[y][x].islower()) or
                 (state.color == COLOR_BLACK and state.board[y][x].isupper())):
+            return True
+    return False
+
+
+# TODO - Not nice that both methods are so similar
+def check_if_square_is_occupied_by_friendly_unit(state, x, y):
+    if 0 <= x <= 7 and 0 <= y <= 7:
+        if ((state.color == COLOR_WHITE and state.board[y][x].isupper()) or
+                (state.color == COLOR_BLACK and state.board[y][x].islower())):
             return True
     return False
 

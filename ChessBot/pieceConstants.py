@@ -12,6 +12,8 @@ BLACK_KING = "k"
 BLACK_PAWN = "p"
 
 EMPTY = "."
+CAPTURABLE = "capturable"
+OCCUPIED = "occupied"
 
 COLOR_WHITE = "w"
 COLOR_BLACK = "b"
