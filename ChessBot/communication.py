@@ -5,20 +5,20 @@
 import argparse
 import sys
 
-import chessBoard
-from boardConversion import set_fen_to_board
-from bestMoveGeneration import calculateMove
+from ChessBot.BoardModel import chessBoard
+from ChessBot.BoardModel.boardConversion import set_fen_to_board
+
 
 def talk():
-    board = chessBoard.BoardState()
+    state = chessBoard.BoardState()
     depth = get_depth()
 
     while True:
         msg = input()
-        command(depth, board, msg)
+        command(depth, state, msg)
 
 
-def command(depth, board, msg):
+def command(depth, state, msg):
     msg = msg.strip()
     tokens = msg.split(" ")
     while "" in tokens:
@@ -47,11 +47,11 @@ def command(depth, board, msg):
                 return
 
             if tokens[1] == "startpos":
-                board.create_initial_board()
+                state.create_initial_board()
                 moves_start = 2
             elif tokens[1] == "fen":
                 fen = " ".join(tokens[2:8])
-                set_fen_to_board(fen, board)
+                set_fen_to_board(fen, state)
                 moves_start = 8
             else:
                 return
@@ -60,10 +60,10 @@ def command(depth, board, msg):
                 return
 
             for move in tokens[(moves_start + 1):]:
-                board.execute_move(move)
+                state.execute_move(move)
 
     if msg[0:2] == "go":
-        _move = calculateMove(depth, board)
+        _move = calculateMove(depth, state)
         print("bestmove ", _move)
         return
 

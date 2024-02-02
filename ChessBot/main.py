@@ -1,3 +1,16 @@
-from communication import talk
+import ChessBot.BoardModel.chessBoard
+from ChessBot.MoveGeneration import bestMoveGeneration
+from ChessBot.MoveGeneration.bestMoveGeneration import evaluate_position
 
-talk()
+state = ChessBot.BoardModel.chessBoard.BoardState()
+state.create_initial_board()
+
+for i in range(15):
+    move = bestMoveGeneration.calculate_best_move(2, state)
+    state.execute_move(move)
+    for row in state.board:
+        print(row)
+    print("")
+
+
+# talk()

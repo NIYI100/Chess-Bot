@@ -1,5 +1,5 @@
 # Pieces - naming as per FEN (Forsyth-Edwards Notation)
-from ChessBot.pieceConstants import *
+from ChessBot.Constants.pieceConstants import *
 
 
 # TODO - In the moment I only see a pin as a absolute pin where th epiece cant move at all
@@ -53,7 +53,7 @@ def pawn_moves(state, x, y):
                 possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y - 2))
         # capture piece
         for u in [-1, 1]:
-            if check_if_square_is_capturable(state, u, y - 1):
+            if check_if_square_is_capturable(state,x + u, y - 1):
                 possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
             # EnPassant
             if (ord(state.enPassant[0]) - 97 == x + u):
