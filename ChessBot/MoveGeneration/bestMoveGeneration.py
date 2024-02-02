@@ -1,4 +1,6 @@
 import math
+import time
+
 import ChessBot.MoveGeneration.legalMovesGeneration as chess
 from ChessBot.Constants.pieceConstants import *
 from ChessBot.Constants import evaluation_tables
@@ -13,31 +15,34 @@ def calculate_best_move(depth, state):
     color = state.color
     best_eval = - math.inf
     best_move = None
+    timer = time.time()
     for move in chess.get_legal_moves(state):
         state.push(move)
-        board_evaluation = - nega_max(depth, state)
+        board_evaluation = - nega_max(depth, state, - math.inf, math.inf)
         state.pop()
         if board_evaluation > best_eval:
             best_eval = board_evaluation
             best_move = move
     state.color = color
     state.switch_color()
+    print(time.time() - timer)
     return best_move
 
 
-def nega_max(depth, state):
+def nega_max(depth, state, alpha, beta):
     if depth == 0:
         return evaluate_position(state)
 
-
-    max_eval = - math.inf
     for move in chess.get_legal_moves(state):
         state.push(move)
-        board_evaluation = - nega_max(depth - 1, state)
+        board_evaluation = - nega_max(depth - 1, state, -beta, -alpha)
         state.pop()
-        max_eval = max(board_evaluation, max_eval)
+        if board_evaluation >= beta:
+            return beta
+        if board_evaluation > alpha:
+            alpha = board_evaluation
 
-    return max_eval
+    return alpha
 
 
 def evaluate_position(state):
