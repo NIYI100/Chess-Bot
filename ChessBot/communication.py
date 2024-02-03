@@ -7,6 +7,7 @@ import sys
 
 from ChessBot.BoardModel import chessBoard
 from ChessBot.BoardModel.boardConversion import set_fen_to_board
+from ChessBot.MoveGeneration.bestMoveGeneration import calculate_best_move
 
 
 def talk():
@@ -63,7 +64,7 @@ def command(depth, state, msg):
                 state.execute_move(move)
 
     if msg[0:2] == "go":
-        _move = calculateMove(depth, state)
+        _move = calculate_best_move(depth, state)
         print("bestmove ", _move)
         return
 
