@@ -16,6 +16,7 @@ def calculate_best_move(depth, state):
     best_eval = - math.inf
     best_move = None
     timer = time.time()
+    print(chess.get_legal_moves(state))
     for move in chess.get_legal_moves(state):
         state.push(move)
         board_evaluation = - nega_max(depth, state, - math.inf, math.inf)
@@ -26,6 +27,7 @@ def calculate_best_move(depth, state):
     state.color = color
     state.switch_color()
     print(time.time() - timer)
+    print(best_eval, " for color: ", color)
     return best_move
 
 
@@ -50,12 +52,12 @@ def evaluate_position(state):
     for x in range(8):
         for y in range(8):
             piece = state.board[x][y]
-            if state.color == COLOR_WHITE and piece.isupper():
+            if piece.isupper():
                 score += evaluation_tables.piece_values[piece]
                 evaluation_table = evaluation_tables.evaluation_for_piece[piece]
                 score += evaluation_table[x][y]
-            if state.color == COLOR_BLACK and piece.islower():
+            if piece.islower():
                 score -= evaluation_tables.piece_values[piece]
                 evaluation_table = evaluation_tables.evaluation_for_piece[piece]
-                score -= evaluation_table[x][y]
+                score -= evaluation_table[7 - x][7 - y]
     return score

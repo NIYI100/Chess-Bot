@@ -6,7 +6,7 @@ state = ChessBot.BoardModel.chessBoard.BoardState()
 state.create_initial_board()
 
 for i in range(15):
-    move = bestMoveGeneration.calculate_best_move(3, state)
+    move = bestMoveGeneration.calculate_best_move(4, state)
     state.execute_move(move)
     for row in state.board:
         print(row)

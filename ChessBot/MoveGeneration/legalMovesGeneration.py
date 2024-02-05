@@ -6,127 +6,154 @@ from ChessBot.Constants.pieceConstants import *
 
 # Calculate all the legal possible moves
 def get_legal_moves(state):
-    moves = []
+    advances, captures = [], []
     if state.color == COLOR_WHITE:
         for y in range(8):
             for x in range(8):
                 match state.board[y][x]:
                     case "P":
-                        moves += pawn_moves(state, x, y)
+                        possible_advances, possible_captures = pawn_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "R":
-                        moves += rook_moves(state, x, y)
+                        possible_advances, possible_captures = rook_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "N":
-                        moves += knight_moves(state, x, y)
+                        possible_advances, possible_captures = knight_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "B":
-                        moves += bishop_moves(state, x, y)
+                        possible_advances, possible_captures = bishop_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "K":
-                        moves += king_moves(state, x, y)
+                        possible_advances, possible_captures = king_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "Q":
-                        moves += queen_moves(state, x, y)
+                        possible_advances, possible_captures = queen_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
     else:
         for y in range(8):
             for x in range(8):
                 match state.board[y][x]:
                     case "p":
-                        moves += pawn_moves(state, x, y)
+                        possible_advances, possible_captures = pawn_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "r":
-                        moves += rook_moves(state, x, y)
+                        possible_advances, possible_captures = rook_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "n":
-                        moves += knight_moves(state, x, y)
+                        possible_advances, possible_captures = knight_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "b":
-                        moves += bishop_moves(state, x, y)
+                        possible_advances, possible_captures = bishop_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "k":
-                        moves += king_moves(state, x, y)
+                        possible_advances, possible_captures = king_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
                     case "q":
-                        moves += queen_moves(state, x, y)
-    return moves
+                        possible_advances, possible_captures = queen_moves(state, x, y)
+                        advances += possible_advances
+                        captures += possible_captures
+    return captures + advances
 
 
 def pawn_moves(state, x, y):
-    possible_moves = []
+    possible_advances = []
+    possible_captures = []
     if state.color == COLOR_WHITE:
         # normal advance
         if check_if_square_is_empty(state, x, y - 1):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y - 1))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y - 1))
             # move from baseline
             if y == 6 and check_if_square_is_empty(state, x, y - 2):
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y - 2))
+                possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y - 2))
         # capture piece
         for u in [-1, 1]:
             if check_if_square_is_capturable(state,x + u, y - 1):
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
+                possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
             # EnPassant
-            if (ord(state.enPassant[0]) - 97 == x + u):
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
+            if ord(state.enPassant[0]) - 97 == x + u:
+                possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
     else:
         # normal advance
         if check_if_square_is_empty(state, x, y + 1):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + 1))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y + 1))
             # move from baseline
             if y == 1 and check_if_square_is_empty(state, x, y + 2):
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + 2))
+                possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y + 2))
         # capture piece
         for u in [-1, 1]:
             if check_if_square_is_capturable(state, x + u, y + 1):
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
+                possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
             # EnPassant
             if ord(state.enPassant[0]) - 97 == x + u:
-                possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
-    return possible_moves
+                possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
+    return possible_advances, possible_captures
 
 
 def rook_moves(state, x, y):
-    possible_moves = []
+    possible_advances = []
+    possible_captures = []
     # x-axis to the right
     for u in range(1, 8 - x):
         if check_if_square_is_empty(state, x + u, y):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y))
         elif check_if_square_is_capturable(state, x + u, y):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y))
             break
         else:
             break
     # x-axis to the left
     for u in range(-1, -x - 1, -1):
         if check_if_square_is_empty(state, x + u, y):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y))
         elif check_if_square_is_capturable(state, x + u, y):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y))
             break
         else:
             break
     # y-axis to the top
     for v in range(1, 8 - y):
         if check_if_square_is_empty(state, x, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + v))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y + v))
         elif check_if_square_is_capturable(state, x, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + v))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x, y + v))
             break
         else:
             break
     # y-axis to the bottom
     for v in range(-1, -y - 1, -1):
         if check_if_square_is_empty(state, x, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + v))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x, y + v))
         elif check_if_square_is_capturable(state, x, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x, y + v))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x, y + v))
             break
         else:
             break
-    return possible_moves
+    return possible_advances, possible_captures
 
 
 def knight_moves(state, x, y):
-    possible_moves = []
+    possible_advances = []
+    possible_captures = []
     # horizontal two squares
     for u in [2, -2]:
         if 0 <= (x + u) <= 7:
             for v in [1, -1]:
                 if 0 <= (y + v) <= 7:
                     if check_if_square_is_empty(state, x + u, y + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
+                        possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
                     elif check_if_square_is_capturable(state, x + u, y + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
+                        possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
                         break
                     else:
                         break
@@ -136,75 +163,79 @@ def knight_moves(state, x, y):
             for v in [2, -2]:
                 if 0 <= (y + v) <= 7:
                     if check_if_square_is_empty(state, x + u, y + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
+                        possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
                     elif check_if_square_is_capturable(state, x + u, y + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
+                        possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
                         break
                     else:
                         break
-    return possible_moves
+    return possible_advances, possible_captures
 
 
 def bishop_moves(state, x, y):
-    possible_moves = []
+    possible_advances = []
+    possible_captures = []
     # diagonal right top
     for u in range(1, 7 - max(x, y)):
         if check_if_square_is_empty(state, x + u, y + u):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
         elif check_if_square_is_capturable(state, x + u, y + u):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
             break
         else:
             break
     # diagonal left bottom
     for u in range(-1, max(-x, -y) - 1, -1):
         if check_if_square_is_empty(state, x + u, y + u):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
         elif check_if_square_is_capturable(state, x + u, y + u):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + u))
             break
         else:
             break
     # diagonal left top
     for v in range(1, 7 - max(x, y)):
         if check_if_square_is_empty(state, x - v, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x - v, y + v))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x - v, y + v))
         elif check_if_square_is_capturable(state, x - v, y + v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x - v, y + v))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x - v, y + v))
             break
         else:
             break
     # diagonal right bottom
     for v in range(1, min(7 - x, y)):
         if check_if_square_is_empty(state, x + v, y - v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + v, y - v))
+            possible_advances.append(convert_move_to_long_alg_notation(x, y, x + v, y - v))
         elif check_if_square_is_capturable(state, x + v, y - v):
-            possible_moves.append(convert_move_to_long_alg_notation(x, y, x + v, y - v))
+            possible_captures.append(convert_move_to_long_alg_notation(x, y, x + v, y - v))
             break
         else:
             break
-    return possible_moves
+    return possible_advances, possible_captures
 
 
 def queen_moves(state, i, j):
-    return rook_moves(state, i, j) + bishop_moves(state, i, j)
+    possible_advances_rook, possible_captures_rook = rook_moves(state, i, j)
+    possible_advances_bishop, possible_captures_bishop = bishop_moves(state, i, j)
+    return possible_advances_rook + possible_advances_bishop, possible_captures_rook + possible_captures_bishop
 
 
 def king_moves(state, i, j):
-    possible_moves = []
+    possible_advances = []
+    possible_captures = []
     # All the possible squares around the king
     for u in [-1, 0, 1]:
         if 0 <= (i + u) <= 7:
             for v in [-1, 0, 1]:
                 if 0 <= (j + v) <= 7:
                     if check_if_square_is_empty(state, i + u, j + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(i, j, i + u, j + v))
+                        possible_advances.append(convert_move_to_long_alg_notation(i, j, i + u, j + v))
                     elif check_if_square_is_capturable(state, i + u, j + v):
-                        possible_moves.append(convert_move_to_long_alg_notation(i, j, i + u, j + v))
+                        possible_captures.append(convert_move_to_long_alg_notation(i, j, i + u, j + v))
                         break
                     else:
                         break
-    return possible_moves
+    return possible_advances, possible_captures
 
 
 def check_if_square_is_empty(state, x, y):
