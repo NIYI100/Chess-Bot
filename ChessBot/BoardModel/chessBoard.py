@@ -1,21 +1,25 @@
+# Represenation of a chessboard + logic
+
 import copy
 
 from ChessBot.Constants.pieceConstants import *
+import ChessBot.TranspositionTable.ZobristKey.ZobristKeyCalculations as zobrist
 
 
 class BoardState:
 
-    def __init__(self, board=None, color=None, castleRights=None, enPassant=None, halfmoves=None, fullmoves=None):
+    def __init__(self, board=None, color=None, castle_rights=None, en_passant=None, halfmoves=None, fullmoves=None):
         self.board = board
         self.color = color
-        self.castleRights = castleRights
-        self.enPassant = enPassant
+        self.castle_rights = castle_rights
+        self.en_passant = en_passant
         self.halfmoves = halfmoves
         self.fullmoves = fullmoves
+        self.zobristKey = None
         self.history = []
 
     # Creates the initial board
-    def create_initial_board(self):
+    def create_initial_board(self, zobrist_random_values):
         self.board = [
             [BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK],
             [BLACK_PAWN] * 8,
@@ -27,40 +31,47 @@ class BoardState:
             [WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK]
         ]
         self.color = "w"
-        self.castleRights = "QKqk"
-        self.enPassant = "-"
+        self.castle_rights = "QKqk"
+        self.en_passant = "-"
         self.halfmoves = "0"
         self.fullmoves = "0"
+        self.zobristKey = zobrist.get_zobrist_key_of_board(self, zobrist_random_values)
 
-    # executes a given move on the board
-    def execute_move(self, move):
+    # Executes a given move on the board
+    def execute_move(self, move, zobrist_values):
         old_x = ord(move[0]) - 97
         old_y = 8 - int(move[1])
         new_x = ord(move[2]) - 97
         new_y = 8 - int(move[3])
+
+        zobrist.update_key_for_move(self, old_x, old_y, new_x, new_y, zobrist_values)
         self.board[new_y][new_x] = self.board[old_y][old_x]
         self.board[old_y][old_x] = "."
 
-    def push(self, move):
+    # Used to push a move on the board - This is used in the NagaMax Algorithm
+    def push(self, move, zobrist_values):
         self.history.append(self._save_state())
-        self.execute_move(move)
-        self.switch_color()
+        self.execute_move(move, zobrist_values)
+        self.switch_color(zobrist_values)
 
-    # Chat-GPT
+    # Chat-GPT - Used to make a deepcopy of the board as well as the other variables so the old state can be reconstructed
     def _save_state(self):
-        return copy.deepcopy(self.board), self.color, self.castleRights, self.enPassant, self.halfmoves, self.fullmoves
+        return copy.deepcopy(self.board), self.color, self.castle_rights, self.en_passant, self.halfmoves, self.fullmoves, self.zobristKey
 
-    def pop(self):
+    # Used to pop the topmost state of the history and set the board to the state before that
+    def pop(self, zobrist_values):
         last_state = self.history.pop()
         self._restore_state(last_state)
-        self.switch_color()
+        self.switch_color(zobrist_values)
 
-    # Chat-GPT
+    # Restores the state
     def _restore_state(self, state):
-        self.board, self.color, self.castleRights, self.enPassant, self.halfmoves, self.fullmoves = state
+        self.board, self.color, self.castle_rights, self.en_passant, self.halfmoves, self.fullmoves, self.zobristKey = state
 
-    def switch_color(self):
+    # Used to switch the active color and update the zobrist-key accordingly
+    def switch_color(self, zobrist_values):
         if self.color == COLOR_WHITE:
             self.color = COLOR_BLACK
         else:
             self.color = COLOR_WHITE
+        zobrist.update_color_in_zobrist_key(self, zobrist_values)

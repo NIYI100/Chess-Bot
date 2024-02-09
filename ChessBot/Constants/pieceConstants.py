@@ -1,3 +1,5 @@
+# Constants that are used for the represenatation of the pieces
+
 WHITE_ROOK = "R"
 WHITE_KNIGHT = "N"
 WHITE_BISHOP = "B"

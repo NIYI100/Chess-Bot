@@ -1,6 +1,9 @@
+# Conversion of a chessboard to a fen string and the other way around
+
 from ChessBot.BoardModel.chessBoard import BoardState
 from ChessBot.Constants.pieceConstants import *
 
+# Not used right now
 white_kingside_castle_rights = True
 white_queenside_castle_rights = True
 black_kingside_castle_rights = True
@@ -9,36 +12,25 @@ black_queenside_castle_rights = True
 # Takes a FEN String and converts it to a BoardState object
 def fen_to_board(fen):
     fen_array = fen.split(" ")
+
     board = get_piece_placement_from_fen(fen_array[0])
-
     color = fen_array[1]
-
-    castleRights = fen_array[2]
-
-    enPassant = fen_array[3]
-
+    castle_rights = fen_array[2]
+    en_passant = fen_array[3]
     halfmoves = fen_array[4]
-
     fullmoves = fen_array[5]
 
-    return BoardState(board, color, castleRights, enPassant, halfmoves, fullmoves)
+    return BoardState(board, color, castle_rights, en_passant, halfmoves, fullmoves)
 
 # sets the board to the position defined in a FEN string
 def set_fen_to_board(fen, board):
     fen_array = fen.split(" ")
     board.board = get_piece_placement_from_fen(fen_array[0])
-
     board.color = fen_array[1]
-
-    board.castleRights = fen_array[2]
-
-    board.enPassant = fen_array[3]
-
+    board.castle_rights = fen_array[2]
+    board.en_passant = fen_array[3]
     board.halfmoves = fen_array[4]
-
     board.fullmoves = fen_array[5]
-
-    return
 
 
 
@@ -53,7 +45,7 @@ def get_piece_placement_from_fen(boardFEN):
         piecePlacement.append(rowArray)
     return piecePlacement
 
-# Takes a board state and converts it to the FEN String representation to feed to the GUI
+# Takes a board state and converts it to the FEN String representation
 def board_to_fen(state):
     fen_string = ""
     for row in range(8):
@@ -81,7 +73,7 @@ def board_to_fen(state):
 
     # TODO Implement enPassant
     fen_string += " "
-    fen_string += state.enPassant
+    fen_string += state.en_passant
 
     # TODO Implement halfmoves / End on 100 halfmoves
     fen_string += " "

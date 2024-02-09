@@ -1,10 +1,15 @@
-# Pieces - naming as per FEN (Forsyth-Edwards Notation)
+# This class is used to calculalte all legal moves that are possible on a given board
+
+
 from ChessBot.Constants.pieceConstants import *
 
 
-# TODO - In the moment I only see a pin as a absolute pin where th epiece cant move at all
-
 # Calculate all the legal possible moves
+# For move ordering purposes the captures are put in the front
+#############################################################
+# In the moment there are no checks if the king is in check or if a piece is pinned. If that is the case and the king can
+# be taken a big penalty is given so the engine will not do this - Note: Due to the horizon effect this does not work every time
+# but for the moment it is okay
 def get_legal_moves(state):
     advances, captures = [], []
     if state.color == COLOR_WHITE:
@@ -81,7 +86,7 @@ def pawn_moves(state, x, y):
             if check_if_square_is_capturable(state,x + u, y - 1):
                 possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
             # EnPassant
-            if ord(state.enPassant[0]) - 97 == x + u:
+            if ord(state.en_passant[0]) - 97 == x + u:
                 possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y - 1))
     else:
         # normal advance
@@ -95,7 +100,7 @@ def pawn_moves(state, x, y):
             if check_if_square_is_capturable(state, x + u, y + 1):
                 possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
             # EnPassant
-            if ord(state.enPassant[0]) - 97 == x + u:
+            if ord(state.en_passant[0]) - 97 == x + u:
                 possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + 1))
     return possible_advances, possible_captures
 
