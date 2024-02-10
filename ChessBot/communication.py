@@ -2,6 +2,9 @@
 # Over the time it will be rewritten and expanded
 # UCI uses print for communication
 
+from ChessBot.TranspositionTable.ZobristKey.ZobristRandomValues import ZobristRandomValues
+
+# Ensure the logger is set up (this should be done once at the start of your program)
 import argparse
 import sys
 
@@ -12,14 +15,15 @@ from ChessBot.MoveGeneration.bestMoveGeneration import calculate_best_move
 
 def talk():
     state = chessBoard.BoardState()
+    ZOBRIST_RANDOM_VALUES = ZobristRandomValues()
     depth = get_depth()
 
     while True:
         msg = input()
-        command(depth, state, msg)
+        command(depth, state, msg, ZOBRIST_RANDOM_VALUES)
 
 
-def command(depth, state, msg):
+def command(depth, state, msg, zobrist_random_values):
     msg = msg.strip()
     tokens = msg.split(" ")
     while "" in tokens:
@@ -43,28 +47,28 @@ def command(depth, state, msg):
         case "ucinewgame":
             return
 
-        case "position":
-            if len(tokens) < 2:
-                return
+    if tokens[0] == "position":
+        if len(tokens) < 2:
+            return
 
-            if tokens[1] == "startpos":
-                state.create_initial_board()
-                moves_start = 2
-            elif tokens[1] == "fen":
-                fen = " ".join(tokens[2:8])
-                set_fen_to_board(fen, state)
-                moves_start = 8
-            else:
-                return
+        if tokens[1] == "startpos":
+            state.create_initial_board(zobrist_random_values)
+            moves_start = 2
+        elif tokens[1] == "fen":
+            fen = " ".join(tokens[2:8])
+            set_fen_to_board(fen, state)
+            moves_start = 8
+        else:
+            return
 
-            if len(tokens) <= moves_start or tokens[moves_start] != "moves":
-                return
+        if len(tokens) <= moves_start or tokens[moves_start] != "moves":
+            return
 
-            for move in tokens[(moves_start + 1):]:
-                state.execute_move(move)
+        for move in tokens[(moves_start + 1):]:
+            state.execute_move(move)
 
     if msg[0:2] == "go":
-        _move = calculate_best_move(depth, state)
+        _move = calculate_best_move(depth, state, zobrist_random_values)
         print("bestmove ", _move)
         return
 

@@ -1,10 +1,11 @@
 import numpy
 
+from ChessBot.communication import talk
 import ChessBot.BoardModel.chessBoard
 from ChessBot.MoveGeneration import bestMoveGeneration
 from ChessBot.MoveGeneration.bestMoveGeneration import evaluate_position
 from ChessBot.TranspositionTable.ZobristKey.ZobristRandomValues import ZobristRandomValues
-
+"""
 state = ChessBot.BoardModel.chessBoard.BoardState()
 ZOBRIST_RANDOM_VALUES = ZobristRandomValues()
 state.create_initial_board(ZOBRIST_RANDOM_VALUES)
@@ -21,5 +22,5 @@ for i in range(40):
             if entry is not None:
                 j += 1
         print(j)
-
-# talk()
+"""
+talk()
