@@ -1,6 +1,6 @@
 # Evaluation tables to calculate how good a position is
 
-from ChessBot.Constants.pieceConstants import *
+from Constants.pieceConstants import *
 
 # Taken from Tomasz Michniewski - Simplified Evaluation Function
 piece_values = {

@@ -1,9 +1,8 @@
 # Conversion of a chessboard to a fen string and the other way around
 
-from ChessBot.BoardModel.chessBoard import BoardState
-from ChessBot.Constants.pieceConstants import *
-from ChessBot.MoveGeneration.castling import black_castle_long, black_castle_short, white_castle_short, \
-    white_castle_long
+from BoardModel.chessBoard import BoardState
+from Constants.pieceConstants import *
+from MoveGeneration.castling import black_castle_long, black_castle_short, white_castle_long
 
 # Not used right now
 white_kingside_castle_rights = True

@@ -2,9 +2,10 @@
 # Data Class for HashEntries used in the transposition table
 
 class HashEntry:
-    def __init__(self, zobrist, depth, flag, evaluation, ancient):
+    def __init__(self, zobrist, depth, flag, evaluation, ancient, move):
         self.zobrist = zobrist
         self.depth = depth
         self.flag = flag
         self.evaluation = evaluation
         self.ancient = ancient
+        self.move = move

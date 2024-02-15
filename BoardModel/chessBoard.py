@@ -2,9 +2,9 @@
 
 import copy
 
-from ChessBot.Constants.pieceConstants import *
-import ChessBot.TranspositionTable.ZobristKey.ZobristKeyCalculations as zobrist
-from ChessBot.MoveGeneration.castling import update_castling_rights as update_castling_rights
+from Constants.pieceConstants import *
+import TranspositionTable.ZobristKey.ZobristKeyCalculations as zobrist
+from MoveGeneration.castling import update_castling_rights as update_castling_rights
 
 
 class BoardState:
@@ -40,18 +40,50 @@ class BoardState:
 
     # Executes a given move on the board
     def execute_move(self, move, zobrist_values):
-        old_x = ord(move[0]) - 97
-        old_y = 8 - int(move[1])
-        new_x = ord(move[2]) - 97
-        new_y = 8 - int(move[3])
+        if move in ["e1b1", "e1g1", "e8b8", "e8g8"]:
+            self.execute_castling(move, zobrist_values)
+        else:
 
-        zobrist.update_key_for_move(self, old_x, old_y, new_x, new_y, zobrist_values)
-        self.board[new_y][new_x] = self.board[old_y][old_x]
-        self.board[old_y][old_x] = "."
+            old_x = ord(move[0]) - 97
+            old_y = 8 - int(move[1])
+            new_x = ord(move[2]) - 97
+            new_y = 8 - int(move[3])
 
-    def execute_move_on_board(self, move, zobrist_values):
+            zobrist.update_key_for_move(self, old_x, old_y, new_x, new_y, zobrist_values)
+            self.board[new_y][new_x] = self.board[old_y][old_x]
+            self.board[old_y][old_x] = EMPTY
         update_castling_rights(move)
-        self.execute_move(move, zobrist_values)
+
+    def execute_castling(self, move, zobrist_values):
+        match move:
+            case "e1b1":
+                self.board[0][2] = WHITE_ROOK
+                self.board[0][0] = EMPTY
+                self.board[0][1] = WHITE_KING
+                self.board[0][4] = EMPTY
+                zobrist.update_key_for_move(self, 0, 0, 2, 0, zobrist_values)
+                zobrist.update_key_for_move(self, 4, 0, 1, 0, zobrist_values)
+            case "e1g1":
+                self.board[0][5] = WHITE_ROOK
+                self.board[0][7] = EMPTY
+                self.board[0][6] = WHITE_KING
+                self.board[0][4] = EMPTY
+                zobrist.update_key_for_move(self, 7, 0, 5, 0, zobrist_values)
+                zobrist.update_key_for_move(self, 4, 0, 6, 0, zobrist_values)
+            case "e8b8":
+                self.board[7][2] = BLACK_ROOK
+                self.board[7][0] = EMPTY
+                self.board[7][1] = BLACK_KING
+                self.board[7][4] = EMPTY
+                zobrist.update_key_for_move(self, 0, 7, 2, 7, zobrist_values)
+                zobrist.update_key_for_move(self, 4, 7, 1, 7, zobrist_values)
+            case "e8g8":
+                self.board[7][5] = BLACK_ROOK
+                self.board[7][7] = EMPTY
+                self.board[7][6] = BLACK_KING
+                self.board[7][4] = EMPTY
+                zobrist.update_key_for_move(self, 7, 7, 5, 7, zobrist_values)
+                zobrist.update_key_for_move(self, 4, 7, 6, 7, zobrist_values)
 
     # Used to push a move on the board - This is used in the NagaMax Algorithm
     def push(self, move, zobrist_values):

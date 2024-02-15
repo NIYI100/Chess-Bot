@@ -2,15 +2,15 @@
 # Over the time it will be rewritten and expanded
 # UCI uses print for communication
 
-from ChessBot.TranspositionTable.ZobristKey.ZobristRandomValues import ZobristRandomValues
+from TranspositionTable.ZobristKey.ZobristRandomValues import ZobristRandomValues
 
 # Ensure the logger is set up (this should be done once at the start of your program)
 import argparse
 import sys
 
-from ChessBot.BoardModel import chessBoard
-from ChessBot.BoardModel.boardConversion import set_fen_to_board
-from ChessBot.MoveGeneration.bestMoveGeneration import calculate_best_move
+from BoardModel import chessBoard
+from BoardModel.boardConversion import set_fen_to_board
+from MoveGeneration.bestMoveGeneration import calculate_best_move
 
 
 def talk():
@@ -65,7 +65,8 @@ def command(depth, state, msg, zobrist_random_values):
             return
 
         for move in tokens[(moves_start + 1):]:
-            state.execute_move_on_board(move)
+            state.execute_move(move, zobrist_random_values)
+            state.switch_color(zobrist_random_values)
 
     if msg[0:2] == "go":
         _move = calculate_best_move(depth, state, zobrist_random_values)

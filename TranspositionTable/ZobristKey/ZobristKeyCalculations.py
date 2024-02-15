@@ -1,6 +1,6 @@
 # This class does all the calculations regarding the zobrist keys that represent the state of the board
 
-from ChessBot.Constants.pieceConstants import *
+from Constants.pieceConstants import *
 
 # Dictionaries used for converting pieces to a corresponding index
 pieces_to_value = {

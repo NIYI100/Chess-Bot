@@ -3,10 +3,11 @@
 import math
 import time
 
-import ChessBot.MoveGeneration.legalMovesGeneration as chess
-from ChessBot.Constants import evaluation_tables
-from ChessBot.Constants.HashEntryFlags import *
-from ChessBot.TranspositionTable.HashEntry import HashEntry
+import MoveGeneration.legalMovesGeneration as chess
+from Constants import evaluation_tables
+from Constants.HashEntryFlags import *
+from Constants.pieceConstants import COLOR_WHITE
+from TranspositionTable.HashEntry import HashEntry
 
 TRANSPOSITION_TABLE = [None] * 1048583
 
@@ -15,11 +16,14 @@ def calculate_best_move(depth, state, zobrist_values):
     color = state.color
     best_eval = - math.inf
     best_move = None
-    #timer = time.time()
+    timer = time.time()
+    moves = chess.get_legal_moves(state)
 
-    for move in chess.get_legal_moves(state):
+    sorted_moves = _sort_for_transpos_table(state, moves, zobrist_values)
+
+    for move in moves:
         state.push(move, zobrist_values)
-        board_evaluation = - nega_max(depth, state, - math.inf, math.inf, zobrist_values)
+        board_evaluation = - nega_max(depth, state, - math.inf, math.inf, zobrist_values, move)
         state.pop(zobrist_values)
         if board_evaluation > best_eval:
             best_eval = board_evaluation
@@ -34,30 +38,30 @@ def calculate_best_move(depth, state, zobrist_values):
 # Checks if an entry in the transpos_table exists or if the depth is 0 and returns the evaluation. If not
 # the moves of one depth higher will be checked (if there are no alpha or beta cutoffs)
 # New evaluations will be put into the transposition table
-def nega_max(depth, state, alpha, beta, zobrist_values):
+def nega_max(depth, state, alpha, beta, zobrist_values, move):
     if _check_transpos_table(state, depth, alpha, beta):
         return _get_eval_of_transpos_table(state)
 
     if depth == 0:
         evaluation = evaluate_position(state)
-        _create_entry_in_transpos_table(state, depth, HASH_EXACT, evaluation)
+        _create_entry_in_transpos_table(state, depth, HASH_EXACT, evaluation, move)
         return evaluation
 
     original_alpha = alpha
     for move in chess.get_legal_moves(state):
         state.push(move, zobrist_values)
-        board_evaluation = - nega_max(depth - 1, state, -beta, -alpha, zobrist_values)
+        board_evaluation = - nega_max(depth - 1, state, -beta, -alpha, zobrist_values, move)
         state.pop(zobrist_values)
         if board_evaluation >= beta:
-            _create_entry_in_transpos_table(state, depth, HASH_BETA, beta)
+            _create_entry_in_transpos_table(state, depth, HASH_BETA, beta, move)
             return beta
         if board_evaluation > alpha:
             alpha = board_evaluation
 
     if alpha > original_alpha:
-        _create_entry_in_transpos_table(state, depth, HASH_EXACT, alpha)
+        _create_entry_in_transpos_table(state, depth, HASH_EXACT, alpha, move)
     else:
-        _create_entry_in_transpos_table(state, depth, HASH_ALPHA, alpha)
+        _create_entry_in_transpos_table(state, depth, HASH_ALPHA, alpha, move)
 
     return alpha
 
@@ -80,8 +84,8 @@ def evaluate_position(state):
     return score
 
 # Creates an entry in the transpostion table
-def _create_entry_in_transpos_table(state, depth, flag, evaluation):
-    entry = HashEntry(state.zobristKey, depth, flag, evaluation, 0)
+def _create_entry_in_transpos_table(state, depth, flag, evaluation, move):
+    entry = HashEntry(state.zobristKey, depth, flag, evaluation, 0, move)
     # TODO ancient
     # The ancient var will be used to replace entries later on - In the moment there is no way of replacement if there
     # are hash hits for different positions
@@ -104,3 +108,18 @@ def _check_transpos_table(state, depth, alpha, beta):
 # returns the saved evaluation of a position
 def _get_eval_of_transpos_table(state):
     return TRANSPOSITION_TABLE[state.zobristKey % len(TRANSPOSITION_TABLE)].evaluation
+
+def _sort_for_transpos_table(state, moves, zobrist_values):
+    move_evaluations = {move: get_move_evaluation(state, move, zobrist_values) for move in moves}
+    return sorted(move_evaluations, key=move_evaluations.get, reverse=True)
+
+def get_move_evaluation(state, move, zobrist_values):
+    state.push(move, zobrist_values)
+
+    if TRANSPOSITION_TABLE[state.zobristKey % len(TRANSPOSITION_TABLE)] is not None:
+        evaluation = TRANSPOSITION_TABLE[state.zobristKey % len(TRANSPOSITION_TABLE)].evaluation
+    else:
+        evaluation = - 100000
+    state.pop(zobrist_values)
+    # Fetch the evaluation from the transposition table; use a default if not found
+    return evaluation

@@ -1,8 +1,8 @@
 # This class is used to calculalte all legal moves that are possible on a given board
 
 
-from ChessBot.Constants.pieceConstants import *
-
+from Constants.pieceConstants import *
+from MoveGeneration.Checks.check import check_if_king_is_in_check
 
 # Calculate all the legal possible moves
 # For move ordering purposes the captures are put in the front
@@ -146,26 +146,21 @@ def rook_moves(state, x, y):
             break
     return possible_advances, possible_captures
 
-
 def knight_moves(state, x, y):
     possible_advances = []
     possible_captures = []
+    u1, u2, v1, v2 = 2, -2, 1, -1
     # horizontal two squares
-    for u in [2, -2]:
-        if 0 <= (x + u) <= 7:
-            for v in [1, -1]:
-                if 0 <= (y + v) <= 7:
-                    if check_if_square_is_empty(state, x + u, y + v):
-                        possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
-                    elif check_if_square_is_capturable(state, x + u, y + v):
-                        possible_captures.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
-                        break
-                    else:
-                        break
+    knight_move(possible_advances, possible_captures, state, x, y, u1, u2, v1, v2)
+    knight_move(possible_advances, possible_captures, state, x, y, v1, v2, u1, u2)
     # horizontal one square
-    for u in [1, -1]:
+    return possible_advances, possible_captures
+
+
+def knight_move(possible_advances, possible_captures, state, x, y, u1, u2, v1, v2):
+    for u in [u1, u2]:
         if 0 <= (x + u) <= 7:
-            for v in [2, -2]:
+            for v in [v1, v2]:
                 if 0 <= (y + v) <= 7:
                     if check_if_square_is_empty(state, x + u, y + v):
                         possible_advances.append(convert_move_to_long_alg_notation(x, y, x + u, y + v))
@@ -174,7 +169,6 @@ def knight_moves(state, x, y):
                         break
                     else:
                         break
-    return possible_advances, possible_captures
 
 
 def bishop_moves(state, x, y):
@@ -241,6 +235,38 @@ def king_moves(state, i, j):
                     else:
                         break
     return possible_advances, possible_captures
+
+def is_castling_possible(state):
+    possible_moves = []
+    possible = True
+    if (state.color == COLOR_WHITE and state.castle_rights[0] != "-"):
+        if state.castle_rights[0] == "Q":
+            for u in range(1, 4):
+                if check_if_king_is_in_check(state, 4 - u, 0):
+                    possible = False
+            if possible:
+                possible_moves.append("e1b1")
+        possible = True
+        if state.castle_rights[0] == "K" or state.castle_rights[1] == "K":
+            for u in range(1, 3):
+                if check_if_king_is_in_check(state, 4 + u, 0):
+                    possible = False
+            if possible:
+                possible_moves.append("e1g1")
+    if (state.color == COLOR_BLACK and state.castle_rights[0] != "-"):
+        if state.castle_rights[0] == "q" or state.castle_rights[1] == "q" or state.castle_rights[2] == "q":
+            for u in range(1, 4):
+                if check_if_king_is_in_check(state, 4 - u, 7):
+                    possible = False
+            if possible:
+                possible_moves.append("e7b7")
+        possible = True
+        if state.castle_rights[0] == "k" or state.castle_rights[1] == "k" or state.castle_rights[2] == "k" or state.castle_rights[3] == "k":
+            for u in range(1, 3):
+                if check_if_king_is_in_check(state, 4 + u, 7):
+                    possible = False
+            if possible:
+                possible_moves.append("e7g7")
 
 
 def check_if_square_is_empty(state, x, y):
