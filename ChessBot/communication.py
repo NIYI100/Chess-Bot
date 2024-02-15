@@ -65,7 +65,7 @@ def command(depth, state, msg, zobrist_random_values):
             return
 
         for move in tokens[(moves_start + 1):]:
-            state.execute_move(move)
+            state.execute_move_on_board(move)
 
     if msg[0:2] == "go":
         _move = calculate_best_move(depth, state, zobrist_random_values)

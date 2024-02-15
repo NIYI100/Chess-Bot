@@ -4,6 +4,7 @@ import copy
 
 from ChessBot.Constants.pieceConstants import *
 import ChessBot.TranspositionTable.ZobristKey.ZobristKeyCalculations as zobrist
+from ChessBot.MoveGeneration.castling import update_castling_rights as update_castling_rights
 
 
 class BoardState:
@@ -47,6 +48,10 @@ class BoardState:
         zobrist.update_key_for_move(self, old_x, old_y, new_x, new_y, zobrist_values)
         self.board[new_y][new_x] = self.board[old_y][old_x]
         self.board[old_y][old_x] = "."
+
+    def execute_move_on_board(self, move, zobrist_values):
+        update_castling_rights(move)
+        self.execute_move(move, zobrist_values)
 
     # Used to push a move on the board - This is used in the NagaMax Algorithm
     def push(self, move, zobrist_values):

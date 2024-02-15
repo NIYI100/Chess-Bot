@@ -2,12 +2,15 @@
 
 from ChessBot.BoardModel.chessBoard import BoardState
 from ChessBot.Constants.pieceConstants import *
+from ChessBot.MoveGeneration.castling import black_castle_long, black_castle_short, white_castle_short, \
+    white_castle_long
 
 # Not used right now
 white_kingside_castle_rights = True
 white_queenside_castle_rights = True
 black_kingside_castle_rights = True
 black_queenside_castle_rights = True
+
 
 # Takes a FEN String and converts it to a BoardState object
 def fen_to_board(fen):
@@ -22,6 +25,7 @@ def fen_to_board(fen):
 
     return BoardState(board, color, castle_rights, en_passant, halfmoves, fullmoves)
 
+
 # sets the board to the position defined in a FEN string
 def set_fen_to_board(fen, board):
     fen_array = fen.split(" ")
@@ -31,7 +35,6 @@ def set_fen_to_board(fen, board):
     board.en_passant = fen_array[3]
     board.halfmoves = fen_array[4]
     board.fullmoves = fen_array[5]
-
 
 
 # Helper method to create the BoardState object from the FEN string
@@ -44,6 +47,7 @@ def get_piece_placement_from_fen(boardFEN):
             rowArray.extend(["."] * int(char)) if char.isdigit() else rowArray.append(char)
         piecePlacement.append(rowArray)
     return piecePlacement
+
 
 # Takes a board state and converts it to the FEN String representation
 def board_to_fen(state):
@@ -83,6 +87,17 @@ def board_to_fen(state):
     fen_string += state.fullmoves if state.color == COLOR_WHITE else str(int(state.fullmoves) + 1)
     return fen_string
 
+
 def get_castleing_rights():
-    # TODO - For the chosen best move we do a execute_move(state, move) method where we will check if a king or rook have moved -> castleing rights gone
-    return
+    castling_string = ""
+    if white_castle_long:
+        castling_string += "Q"
+    if white_castle_long:
+        castling_string += "K"
+    if black_castle_long:
+        castling_string += "q"
+    if black_castle_short:
+        castling_string += "k"
+    if castling_string == "":
+        castling_string = "-"
+    return castling_string
