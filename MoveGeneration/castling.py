@@ -1,7 +1,12 @@
+
+
 white_castle_short = True
 white_castle_long = True
 black_castle_short = True
 black_castle_long = True
+
+
+
 def update_castling_rights(move):
     old_x = ord(move[0]) - 97
     old_y = 8 - int(move[1])

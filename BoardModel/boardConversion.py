@@ -4,12 +4,8 @@ from BoardModel.chessBoard import BoardState
 from Constants.pieceConstants import *
 from MoveGeneration.castling import black_castle_long, black_castle_short, white_castle_long
 
-# Not used right now
-white_kingside_castle_rights = True
-white_queenside_castle_rights = True
-black_kingside_castle_rights = True
-black_queenside_castle_rights = True
-
+# TODO -> Works right? -> chessBoard -> executeMove
+halfmove_advance = True
 
 # Takes a FEN String and converts it to a BoardState object
 def fen_to_board(fen):
@@ -74,13 +70,13 @@ def board_to_fen(state):
     fen_string += " "
     fen_string += get_castleing_rights()
 
-    # TODO Implement enPassant
+    # TODO Implement enPassant -> Should be implemented -> chessBoard -> executeMove
     fen_string += " "
     fen_string += state.en_passant
 
-    # TODO Implement halfmoves / End on 100 halfmoves
+    # TODO End on 100 halfmoves
     fen_string += " "
-    fen_string += state.halfmoves
+    fen_string += (state.halfmoves + 1) if halfmove_advance else 0
 
     fen_string += " "
     fen_string += state.fullmoves if state.color == COLOR_WHITE else str(int(state.fullmoves) + 1)
