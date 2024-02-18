@@ -40,16 +40,29 @@ class BoardState:
 
     # Executes a given move on the board
     def execute_move(self, move, zobrist_values):
+        global halfmove_advance
+        halfmove_advance = True
+        # Castling
         if move in ["e1b1", "e1g1", "e8b8", "e8g8"]:
             self.execute_castling(move, zobrist_values)
-        else:
+        # White enPassant
+        elif move in ["a2a4", "b2b4", "c2c4", "d2d4","e2e4", "f2f4","g2g4", "h2h4"]:
+            self.en_passant = move[0] + str(int(move[1]) + 1)
+            halfmove_advance = False
+        # Back enPassant
+        elif move in ["a7a5", "b7b5", "c7c5", "d7d5","e7e5", "f7f5","g7g5", "h7h5"]:
+            self.en_passant = move[0] + str(int(move[1]) - 1)
+            halfmove_advance = False
 
+        else:
             old_x = ord(move[0]) - 97
             old_y = 8 - int(move[1])
             new_x = ord(move[2]) - 97
             new_y = 8 - int(move[3])
 
             zobrist.update_key_for_move(self, old_x, old_y, new_x, new_y, zobrist_values)
+            if self.board[new_y][new_x] != EMPTY:
+                halfmove_advance = False
             self.board[new_y][new_x] = self.board[old_y][old_x]
             self.board[old_y][old_x] = EMPTY
         update_castling_rights(move)

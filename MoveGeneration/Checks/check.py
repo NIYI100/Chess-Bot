@@ -1,4 +1,5 @@
-from MoveGeneration.legalMovesGeneration import *
+
+"""
 def check_if_king_is_in_check(state, x, y):
     _, captures = [], []
     if check_knight_capture_of_king(state, x, y):
@@ -72,7 +73,7 @@ def check_bishop_capture_of_king(state, x, y):
 
     for v in range(1, 7 - max(x, y)):
         if check_if_square_is_capturable(state, x - v, y + v):
-            if state.board[y - v, x + v].upper() == WHITE_BISHOP or state.board[y + u, x + u].upper() == WHITE_QUEEN:
+            if state.board[y - v, x + v].upper() == WHITE_BISHOP or state.board[y - v, x + v].upper() == WHITE_QUEEN:
                 return True
         if not check_if_square_is_empty(state, x - v, y + v):
             break
@@ -86,3 +87,4 @@ def check_bishop_capture_of_king(state, x, y):
 
     return False
 
+"""
