@@ -1,6 +1,6 @@
 # Evaluation tables to calculate how good a position is
 
-from Constants.pieceConstants import *
+from Application.Constants.pieceConstants import *
 
 # Taken from Tomasz Michniewski - Simplified Evaluation Function
 piece_values = {
@@ -98,5 +98,3 @@ evaluation_for_piece = {
     BLACK_KNIGHT: knight_advance,
     BLACK_BISHOP: bishop_advance
 }
-
-# King Middle / End game

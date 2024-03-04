@@ -1,29 +1,27 @@
 # Disclaimer: As it is in wip this is veryx close to the https://github.com/healeycodes/andoma/blob/main/communication.py
 # Over the time it will be rewritten and expanded
 # UCI uses print for communication
-
-from TranspositionTable.ZobristKey.ZobristRandomValues import ZobristRandomValues
+from Application.BoardModel.chessBoard import BoardState
 
 # Ensure the logger is set up (this should be done once at the start of your program)
 import argparse
 import sys
 
-from BoardModel import chessBoard
-from BoardModel.boardConversion import set_fen_to_board
-from MoveGeneration.bestMoveGeneration import calculate_best_move
+from Application.BoardModel.boardConversion import set_fen_to_board
+from Application.MoveGeneration.bestMoveGeneration import iterative_deepening
 
 
 def talk():
-    state = chessBoard.BoardState()
-    ZOBRIST_RANDOM_VALUES = ZobristRandomValues()
-    depth = get_depth()
+    state = BoardState()
+    max_depth = get_depth()
+    time_to_run = get_time_to_run()
 
     while True:
         msg = input()
-        command(depth, state, msg, ZOBRIST_RANDOM_VALUES)
+        command(max_depth, time_to_run, state, msg)
 
 
-def command(depth, state, msg, zobrist_random_values):
+def command(max_depth, time_to_run, state, msg):
     msg = msg.strip()
     tokens = msg.split(" ")
     while "" in tokens:
@@ -52,7 +50,7 @@ def command(depth, state, msg, zobrist_random_values):
             return
 
         if tokens[1] == "startpos":
-            state.create_initial_board(zobrist_random_values)
+            state.create_initial_board()
             moves_start = 2
         elif tokens[1] == "fen":
             fen = " ".join(tokens[2:8])
@@ -65,17 +63,22 @@ def command(depth, state, msg, zobrist_random_values):
             return
 
         for move in tokens[(moves_start + 1):]:
-            state.execute_move(move, zobrist_random_values)
-            state.switch_color(zobrist_random_values)
+            state.execute_move(move)
 
     if msg[0:2] == "go":
-        _move = calculate_best_move(depth, state, zobrist_random_values)
+        _move = iterative_deepening(max_depth, state, time_to_run)
         print("bestmove ", _move)
         return
 
 
 def get_depth():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--depth", default=3, help="Provide an integer (default: 3)")
+    parser.add_argument("--depth", default=10, help="Provide an integer (default: 10)")
     args = parser.parse_args()
     return max([1, int(args.depth)])
+
+def get_time_to_run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--time", type=float, default=4.5, help="Provide an float (default: 4.5)")
+    args = parser.parse_args()
+    return max([1.0, float(args.time)])
