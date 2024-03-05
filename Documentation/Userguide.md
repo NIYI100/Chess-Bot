@@ -1,12 +1,12 @@
-# Userguide
-This is the userguide to use the chess engine.
+# User guide
+This is the user guide to use the chess engine.
 
 The chess engine can either be used via the cmd or (the recommended way) with a dedicated GUI.
 
 ## How to execute the program
 
 ### Command Line
-To use the engine with the cmd, just execute `main.py`. As this engine uses the [uci]() interface
+To use the engine with the cmd, just execute `main.py`. As this engine uses the [uci](https://de.wikipedia.org/wiki/Universal_Chess_Interface) interface
 the commands to execute different functions are also uci conform.
 
 The different available moves:
@@ -22,12 +22,12 @@ standard should be used
   followed by the moves "a2a4" and "h7h5".
 * `go`: Tells the engine that it should execute search for the best move
 
-If you want to put that move on the board afterwards you have to use the `position` command.
+If you want to put that move on the board afterward you have to use the `position` command.
 
 ### Dedicated GUI
-I strongly advise the use of [Arena](http://www.playwitharena.de). After downloading and starting the programm
-a chess engine can be loaded by pressing `engines -> install new engine`. The enigine lays in
-[main.exe](/dist/main.exe). If you want to build you own .exe if you changed things you can do this as folows:
+I strongly advise the use of [Arena](http://www.playwitharena.de). After downloading and starting the program
+a chess engine can be loaded by pressing `engines -> install new engine`. The engine lays in
+[main.exe](/dist/main.exe). If you want to build you own .exe if you changed things you can do this as follows:
 * `pip install pyinstaller`
 * `pyinstaller --onefile Application/main.py`
 
