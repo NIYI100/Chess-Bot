@@ -9,7 +9,6 @@ from Application.MoveGeneration.bestMoveGeneration import iterative_deepening
 def talk():
     """
     The main loop of the uci interface. Will listen to inputs and execute the corresponding actions
-    :return:
     """
     state = BoardState()
     max_depth = get_depth()

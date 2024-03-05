@@ -5,13 +5,7 @@ Lichess or Arena.
 This project implements the chess rules, the search for the best move as well as the communication in the uci standard
 
 # Getting started
-To use the engine you just have to download a uci-compatible GUI and plug the engine into it. The engine is compiled as
-a [main.exe](dist/main.exe) file. When loaded in the GUI you can just start a game and play. An easy way is Arena.
-
-Another way to play is via the command line. For that just start the application via your preferred IDE. This is
-more complicated as you have to input the uci commands yourself.
-
-Also there is a [requirements.txt](requirements.txt) file if you want to play with the code.
+For instructions how to play against the engine, see th [User manual](/Documentation/Userguide.md)
 
 # Structure in detail
 ## Communication
