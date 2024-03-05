@@ -1,4 +1,6 @@
 import unittest
+
+from Application.BoardModel.chessBoard import BoardState
 from Application.MoveGeneration.legalMovesGeneration import *
 
 

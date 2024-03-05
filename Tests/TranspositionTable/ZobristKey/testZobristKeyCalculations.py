@@ -26,7 +26,7 @@ class TestZobristKeyCalculations(unittest.TestCase):
         old_zobristKey = self.state.zobristKey
         old_col, old_row, new_col, new_row = 0, 6, 0, 4
         update_key_for_move(self.state, old_col, old_row, new_col, new_row)
-        self.assertNotEquals(old_zobristKey, self.state.zobristKey)
+        self.assertNotEqual(old_zobristKey, self.state.zobristKey)
 
         self.state.board[4][0] = WHITE_PAWN
         update_key_for_move(self.state, new_col, new_row, old_col, old_row)
