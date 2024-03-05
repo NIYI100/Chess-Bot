@@ -10,6 +10,9 @@ class TestBoardConversion(unittest.TestCase):
         self.state.create_initial_board()
 
     def test_get_piece_placement_of_starting_position(self):
+        """
+        Tests the return of the piece placement for the starting position
+        """
         piecePlacement = [
             [BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK],
             [BLACK_PAWN] * 8,
@@ -23,6 +26,9 @@ class TestBoardConversion(unittest.TestCase):
         self.assertEqual(get_piece_placement_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"), piecePlacement)
 
     def test_get_piece_placement_of_later_position(self):
+        """
+        Tests the return of the piece placement for a later position
+        """
         piecePlacement = [
             [EMPTY] * 8,
             [BLACK_PAWN] * 4 + [BLACK_KING, BLACK_ROOK] + [EMPTY] * 2,
@@ -36,6 +42,9 @@ class TestBoardConversion(unittest.TestCase):
         self.assertEqual(get_piece_placement_from_fen("8/ppppkr2/8/8/8/7K/PPPPPP2/8"), piecePlacement)
 
     def test_board_to_fen_of_starting_position(self):
+        """
+
+        """
         fen = board_to_fen(self.state)
         self.assertEqual(fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w QKqk - 0 1")
 

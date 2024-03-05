@@ -1,7 +1,3 @@
-from Application.MoveGeneration.moveChecks import check_if_king_is_in_check, check_if_square_is_empty
-from Application.Constants.pieceConstants import *
-
-
 class CastlingRights:
     """
     This class defines the castling rights for the BoardState

@@ -1,4 +1,3 @@
-from Application.BoardModel.chessBoard import BoardState
 from Application.MoveGeneration.moveChecks import *
 
 def get_legal_moves(state):
