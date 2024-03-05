@@ -1,7 +1,5 @@
 import unittest
 from unittest.mock import patch
-
-import Application.communication
 from Application.communication import *
 
 
