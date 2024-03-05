@@ -1,8 +1,10 @@
-# Evaluation tables to calculate how good a position is
-
 from Application.Constants.pieceConstants import *
 
-# Taken from Tomasz Michniewski - Simplified Evaluation Function
+"""
+Taken from Tomasz Michniewski - Simplified Evaluation Function.
+This is a easy evaluation fucntion which gives every piece a value
+and changes it depending of the square it is on.
+"""
 piece_values = {
     WHITE_PAWN: 100,
     BLACK_PAWN: 100,

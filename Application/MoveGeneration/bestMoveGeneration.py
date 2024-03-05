@@ -1,43 +1,44 @@
-# This class is used to calculate the best move for a given board
-
-import math
 import time
 
 import Application.MoveGeneration.legalMovesGeneration as chess
-from Application.BoardModel.boardConversion import board_to_fen
 from Application.BoardModel.chessBoard import BoardState
 from Application.Constants import evaluation_tables
-from Application.Constants.pieceConstants import COLOR_WHITE, WHITE_PAWN
+from Application.Constants.pieceConstants import COLOR_WHITE
 from Application.MoveGeneration.moveChecks import find_king, check_if_king_is_in_check, not_check_after_move
 from Application.TranspositionTable.TranspostionTable import *
 
 
-# Calculation of the best move for a given starting position using negaMax (a compromized MiniMax Algorithm)
-
-
 def iterative_deepening(max_depth, state, time_to_run):
+    """
+    This is the entry point to the calculation of the best move. Iterative deepening iteratively deepens the search
+    until the maximum depth is reached or the time runs out.
+    :param max_depth: The maximal depth to which the BoardState should be searched
+    :param state: The BoardState to be searched
+    :param time_to_run: The maximum time allocated for the search
+    :return:
+    """
     startTime = time.time()
     depth = 1
     best_move = ""
 
-
     while depth <= max_depth and time.time() <= startTime + time_to_run:
         best_move = calculate_best_move(depth, state)
         depth += 1
-
-    print("Time for alg: ", str(startTime + time_to_run))
-    print("Time used: " + str(time.time() - startTime))
-    print("Depth achieved: " + str(depth))
     return best_move
 
 
-
 def calculate_best_move(depth, state):
+    """
+    Calculates the best move for a given BoardState and depth. For every move the move will be pushed
+    and the negaMax algorithm will be used to find the best move.
+    If there is no best move, because there is a stalemate or checkmate "0000" will be returned
+    :param depth: The depth to search the BoardState to
+    :param state: The BoardState to be searched
+    """
     best_evaluation = - math.inf
     captures, advances = chess.get_legal_moves(state)
-    legal_moves = captures + advances
     best_move = None
-    sorted_moves = sort_for_transpos_table(state, legal_moves)
+    sorted_moves = sort_for_transpos_table(state, captures) + sort_for_transpos_table(state, advances)
 
     for move in sorted_moves:
         state.push(move)
@@ -52,12 +53,19 @@ def calculate_best_move(depth, state):
     return best_move
 
 
-# The NegaMax Algorithm - it uses Alpha-Bet Pruning, rudimentary move ordering and a transposition table as optimization methods
-# Checks if an entry in the transpos_table exists or if the depth is 0 and returns the evaluation. If not
-# the moves of one depth higher will be checked (if there are no alpha or beta cutoffs)
-# New evaluations will be put into the transposition table
 def nega_max(depth, state, alpha, beta):
-    # Is there already a entry in the transposition table for the postion?
+    """
+    The negaMax algorithm is used to recursively find the best move for a give BopardState. For already looked
+    at states a transposition table is used to speed up the search. For depth 0 a quiescence search is performed
+    to counter the horizon effect. Furthermore, Late Move Reduction (LMR) is used for later moves for further speed up.
+
+    :param depth: The depth to which the algorithm should search
+    :param state: The momentary BoardState
+    :param alpha: The alpha value
+    :param beta: The beta value
+    :return
+    """
+    # Is there already an entry in the transposition table for the postion?
     if check_transpos_table_if_useable(state, depth, alpha, beta):
         return get_eval_of_transpos_table(state)
 
@@ -83,11 +91,11 @@ def nega_max(depth, state, alpha, beta):
 
     for num_moves_looked_at, next_move in enumerate(sorted_moves):
         state.push(next_move)
-        # As we sort for best evaluation of moves the later moves are probaply not as good and should be searched as deep
+
+        # LMR
         if num_moves_looked_at >= 7 and depth >= 3:
             reduced_depth = depth - 2
             board_evaluation = - nega_max(reduced_depth, state, -beta, -alpha)
-
             # Found checkmate
             if board_evaluation == math.inf or board_evaluation == - math.inf:
                 state.pop()
@@ -95,6 +103,7 @@ def nega_max(depth, state, alpha, beta):
             # The move is better than expected, so we do the full search
             if board_evaluation > alpha:
                 board_evaluation = - nega_max(depth - 1, state, -beta, -alpha)
+
         # First moves should be searched in greater depth
         else:
             board_evaluation = - nega_max(depth - 1, state, -beta, -alpha)
@@ -122,9 +131,19 @@ def nega_max(depth, state, alpha, beta):
 
 
 def quiescenceSearch(state, alpha, beta, depth):
+    """
+    quiescenceSearch is used at the leaf nodes to counter the horizon effect.
+    :param state: The BoardState
+    :param alpha: The alpha value
+    :param beta: The beta value
+    :param depth: The depth to which shoould be searched
+    """
+
     stand_pat = evaluate_position(state)
+    # Move is worse than before
     if stand_pat >= beta:
         return beta, 5 - depth
+    # We searched to maximum depth
     elif depth == 0:
         return stand_pat, 5 - depth
     if alpha < stand_pat:
@@ -133,14 +152,19 @@ def quiescenceSearch(state, alpha, beta, depth):
     captures, advances = chess.get_legal_moves(state)
     sorted_moves = sort_for_transpos_table(state, captures)
     king_row, king_col = find_king(state)
+
+    # We are in check - Only moves allowed that get the king out of check
     if check_if_king_is_in_check(state, king_row, king_col):
         still_possible_moves = []
         for move in sorted_moves:
             if not_check_after_move(state, move, king_row, king_col):
                 still_possible_moves.append(move)
+        # There are no legal moves to recapture
         if len(still_possible_moves) == 0:
+            # There are also no possible advances that prevent checkmate - The state is checkmate
             if len(advances) == 0:
                 return - math.inf, 5 - depth
+            # There are advances but we dont search it here
             else:
                 return stand_pat, 5 - depth
         else:
@@ -162,9 +186,14 @@ def quiescenceSearch(state, alpha, beta, depth):
     return alpha, 5 - depth
 
 
-# Evaluates a given position according to the ChessBot/Constants/evaluation_tables.py. A positiv value menas that white is ahead
-# a negativ means black is ahead
 def evaluate_position(state: BoardState):
+    """
+    Evaluates the state of the board. At the moment this only includes the position of the pieces + a bonus
+    if the enemy king is in check.
+    The evaluation is dependent on the active color. A position in which white is ahead by 600 will be returned
+    as 600 if white is active at the moment and - 600 if black is active.
+    :param state: The BoardState
+    """
     white_eval, black_eval = 0, 0
     for row in range(8):
         for col in range(8):
@@ -182,7 +211,7 @@ def evaluate_position(state: BoardState):
     state.switch_color()
     king_row, king_col = find_king(state)
     if check_if_king_is_in_check(state, king_row, king_col):
-        check_bonus = 55
+        check_bonus = 45
     state.switch_color()
 
     if state.color == COLOR_WHITE:

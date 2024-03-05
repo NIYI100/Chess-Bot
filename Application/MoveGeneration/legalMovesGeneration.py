@@ -1,15 +1,11 @@
-# This class is used to calculalte all legal moves that are possible on a given board
 from Application.BoardModel.chessBoard import BoardState
 from Application.MoveGeneration.moveChecks import *
 
-
-# Calculate all the legal possible moves
-# For move ordering purposes the captures are put in the front
-#############################################################
-# In the moment there are no checks if the king is in check or if a piece is pinned. If that is the case and the king can
-# be taken a big penalty is given so the engine will not do this - Note: Due to the horizon effect this does not work every time
-# but for the moment it is okay
-def get_legal_moves(state: BoardState):
+def get_legal_moves(state):
+    """
+    Calculates the legal moves for the given BoardState
+    :param state: The BoardState
+    """
     advances, captures = [], []
     king_row, king_col = find_king(state)
     if state.color == COLOR_WHITE:
@@ -116,7 +112,15 @@ def get_castling_moves(state):
 
     return possible_moves
 
-def pawn_moves(state: BoardState, row: int, col: int, king_row: int, king_col: int) -> (list[str], list[str]):
+def pawn_moves(state, row, col, king_row, king_col):
+    """
+    Generates all possible Pawn moves for the given BoardState and a given Pawn
+    :param state: The BoardState
+    :param row: The row of the Pawn
+    :param col: The column of the Pawn
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    """
     possible_advances = []
     possible_captures = []
     if state.color == COLOR_WHITE:
@@ -156,7 +160,15 @@ def pawn_moves(state: BoardState, row: int, col: int, king_row: int, king_col: i
     return possible_advances, possible_captures
 
 
-def rook_moves(state: BoardState, row: int, col: int, king_row: int, king_col: int) -> (list[str], list[str]):
+def rook_moves(state, row, col, king_row, king_col):
+    """
+    Generates all possible Rook moves for the given BoardState and a given Rook
+    :param state: The BoardState
+    :param row: The row of the Rook
+    :param col: The column of the Rook
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    """
     possible_advances = []
     possible_captures = []
     # x-axis to the right
@@ -201,18 +213,45 @@ def rook_moves(state: BoardState, row: int, col: int, king_row: int, king_col: i
             break
     return possible_advances, possible_captures
 
-def knight_moves(state: BoardState, row: int, col: int, king_row: int, king_col: int) -> (list[str], list[str]):
+def knight_moves(state, row, col, king_row, king_col):
+    """
+    Generates all possible Knight moves for the given BoardState and a given Knight
+    :param state: The BoardState
+    :param row: The row of the Knight
+    :param col: The column of the Knight
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    """
     possible_advances = []
     possible_captures = []
     u1, u2, v1, v2 = 2, -2, 1, -1
     # horizontal two squares
-    knight_move(possible_advances, possible_captures, state, row, col, king_row, king_col, u1, u2, v1, v2)
-    knight_move(possible_advances, possible_captures, state, row, col, king_row, king_col, v1, v2, u1, u2)
+    a, b = _knight_move(state, row, col, king_row, king_col, u1, u2, v1, v2)
+    possible_advances += a
+    possible_captures += b
+    a, b = _knight_move(state, row, col, king_row, king_col, v1, v2, u1, u2)
+    possible_advances += a
+    possible_captures += b
     # horizontal one square
     return possible_advances, possible_captures
 
 
-def knight_move(possible_advances: list[str], possible_captures: list[str], state: BoardState, row: int, col: int, king_row: int, king_col: int, u1: int, u2: int, v1: int, v2: int) -> (list[str], list[str]):
+def _knight_move(state, row, col, king_row, king_col, u1, u2, v1, v2):
+    """
+    A helper method to calculate the possible squares a knight can jump to. u1, u2, v1, v2 are the different
+    combinations of the squares the knight can jump to.
+    :param state: The BoardState
+    :param row: The row of the Knight
+    :param col: The column of the Knight
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    :param u1: value1
+    :param u2: value2
+    :param v1: value3
+    :param v2: value4
+    :return:
+    """
+    possible_advances, possible_captures = [], []
     for u in [u1, u2]:
         if 0 <= (row + u) <= 7:
             for v in [v1, v2]:
@@ -222,9 +261,18 @@ def knight_move(possible_advances: list[str], possible_captures: list[str], stat
                         possible_advances.append(convert_move_to_long_alg_notation(row, col, row + u, col + v))
                     elif check_if_square_is_capturable(state, row + u, col + v) and not_check_after_move(state, move, king_row, king_col):
                         possible_captures.append(convert_move_to_long_alg_notation(row, col, row + u, col + v))
+    return possible_advances, possible_captures
 
 
-def bishop_moves(state: BoardState, row: int, col: int, king_row: int, king_col: int) -> (list[str], list[str]):
+def bishop_moves(state, row, col, king_row, king_col):
+    """
+    Generates all possible Bishop moves for the given BoardState and a given Bishop
+    :param state: The BoardState
+    :param row: The row of the Bishop
+    :param col: The column of the Bishop
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    """
     possible_advances = []
     possible_captures = []
     # Bottom right
@@ -270,13 +318,27 @@ def bishop_moves(state: BoardState, row: int, col: int, king_row: int, king_col:
     return possible_advances, possible_captures
 
 
-def queen_moves(state: BoardState, row: int, col: int, king_row: int, king_col: int) -> (list[str], list[str]):
+def queen_moves(state, row, col, king_row, king_col):
+    """
+    Generates all possible Queen moves for the given BoardState and a given Queen
+    :param state: The BoardState
+    :param row: The row of the Queen
+    :param col: The column of the Queen
+    :param king_row: The row of the king
+    :param king_col: The column of the king
+    """
     possible_advances_rook, possible_captures_rook = rook_moves(state, row, col,king_row, king_col)
     possible_advances_bishop, possible_captures_bishop = bishop_moves(state, row, col, king_row, king_col)
     return possible_advances_rook + possible_advances_bishop, possible_captures_rook + possible_captures_bishop
 
 
-def king_moves(state: BoardState, row: int, col: int) -> (list[str], list[str]):
+def king_moves(state, row, col):
+    """
+    Generates all possible King moves for the given BoardState and a given King
+    :param state: The BoardState
+    :param row: The row of the King
+    :param col: The column of the King
+    """
     possible_advances = []
     possible_captures = []
     # All the possible squares around the king
@@ -292,9 +354,16 @@ def king_moves(state: BoardState, row: int, col: int) -> (list[str], list[str]):
     return possible_advances, possible_captures
 
 
-# Converts the array indexes to the long notation used in UCI
-# a2a4 for the pawn at a2 that moves 2 squares to the front on its first move
-def convert_move_to_long_alg_notation(old_row: int, old_col: int, new_row: int, new_col: int) -> str:
+def convert_move_to_long_alg_notation(old_row, old_col, new_row, new_col):
+    """
+    Converts a move to the long string notation which is used in the UCI interface.
+    For example: A Pawnmove from a2 to a4 would be a2a4, a knight capture from b3 to d4 would be b3d4
+    :param old_row: The old row of the move
+    :param old_col: The old column of the move
+    :param new_row: The new row of the move
+    :param new_col: The new column of the move
+    :return:
+    """
     long_notation = ""
     long_notation += chr(old_col + 97)
     long_notation += str(8 - old_row)

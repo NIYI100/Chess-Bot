@@ -1,4 +1,6 @@
-# Constants that are used for the represenatation of the pieces
+"""
+Constants used for the game logic.
+"""
 
 WHITE_ROOK = "R"
 WHITE_KNIGHT = "N"

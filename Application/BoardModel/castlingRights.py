@@ -3,6 +3,9 @@ from Application.Constants.pieceConstants import *
 
 
 class CastlingRights:
+    """
+    This class defines the castling rights for the BoardState
+    """
     def __init__(self):
         self.white_castle_short = True
         self.white_castle_long = True
@@ -13,6 +16,7 @@ class CastlingRights:
         """
         Updates the castling rights based on the move. If the king or rooks move
         or a castling is executed the castling rights will be gone
+        :param move: The move
         """
         old_col = ord(move[0]) - 97
         old_row = int(move[1]) - 1
@@ -55,6 +59,7 @@ class CastlingRights:
     def get_castling_from_string(self, castling_string):
         """
         Converts a castling string to the corresponding CastlingRights
+        :param castling_string: The string that correspons to the castling rights
         """
         temp_str = castling_string
         self.white_castle_short = False

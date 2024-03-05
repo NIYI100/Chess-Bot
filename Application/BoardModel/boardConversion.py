@@ -4,9 +4,11 @@ from Application.Constants.pieceConstants import *
 from Application.TranspositionTable.ZobristKey.ZobristKeyCalculations import get_zobrist_key_of_board
 
 
-def set_fen_to_board(fen: str, state):
+def set_fen_to_board(fen, state):
     """
     Sets a fen to its corresponding BoardState
+    :param fen: The FEN string
+    :param state: The BoardState the FEN string should be applied to.
     """
     fen_array = fen.split(" ")
     state.board = get_piece_placement_from_fen(fen_array[0])
@@ -19,11 +21,12 @@ def set_fen_to_board(fen: str, state):
 
 
 # Helper method to create the BoardState object from the FEN string
-def get_piece_placement_from_fen(boardFEN) -> list[list[str]]:
+def get_piece_placement_from_fen(fen):
     """
-    returns the piece placement for the BoardState
+    returns an [8][8] list containing the piece placement for the BoardState
+    :param fen: The FEN which should be converted to the [8][8] Board.
     """
-    rows = boardFEN.split("/")
+    rows = fen.split("/")
     piecePlacement = []
     for row in rows:
         rowArray = []
@@ -33,9 +36,10 @@ def get_piece_placement_from_fen(boardFEN) -> list[list[str]]:
     return piecePlacement
 
 
-def board_to_fen(state) -> str:
+def board_to_fen(state):
     """
     Converts a BoardState to the corresponding FEN string
+    :param state: The BoardState which will be converted to the FEN string
     """
     fen_string = ""
     for row in range(8):
