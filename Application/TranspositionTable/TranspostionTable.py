@@ -1,6 +1,7 @@
 import math
 
 from Application.Constants.HashEntryFlags import *
+from Application.Constants.pieceConstants import COLOR_WHITE
 from Application.TranspositionTable.HashEntry import HashEntry
 
 class TranspositionTable:
@@ -29,6 +30,9 @@ class TranspositionTable:
         """
         return zobristKey % len(self._transpositionTable)
 
+    def get_entry(self, zobristKey):
+        return self._transpositionTable[self.get_index(zobristKey)]
+
     def reset_transposition_table(self):
         """
         Emptys the transposition table
@@ -56,7 +60,7 @@ def create_entry_in_transpos_table_if_better(state, depth, flag, evaluation):
     already_existing_entry = transpositionTable[index]
 
     if already_existing_entry is None or already_existing_entry.depth < depth:
-        entry = HashEntry(state.zobristKey, depth, flag, evaluation, state.color)
+        entry = HashEntry(state.zobristKey, depth, flag, evaluation)
         transpositionTable[index] = entry
 
 def check_transpos_table_if_useable(state, depth, alpha, beta):
@@ -80,8 +84,8 @@ def check_transpos_table_if_useable(state, depth, alpha, beta):
     if hash_entry is not None and state.zobristKey == hash_entry.zobrist:
         # As we are saving relative evaluations we have to swap the value if color is not matching
         evaluation = hash_entry.evaluation
-        if state.color != hash_entry.color:
-            evaluation = - evaluation
+        #if state.color != hash_entry.color:
+        #    evaluation = - evaluation
 
 
         if hash_entry.depth >= depth:
@@ -102,8 +106,8 @@ def get_eval_of_transpos_table(state):
     transpositionTable = TranspositionTable().get_transposition_table()
     hash_entry = transpositionTable[state.zobristKey % len(transpositionTable)]
     evaluation = hash_entry.evaluation
-    if state.color != hash_entry.color:
-        evaluation = - evaluation
+    #if state.color != hash_entry.color:
+    #    evaluation = - evaluation
     return evaluation
 
 def sort_for_transpos_table(state, moves):
@@ -114,7 +118,9 @@ def sort_for_transpos_table(state, moves):
     :param moves: The list of moves
     """
     move_evaluations = {move: _get_move_evaluation(state, move) for move in moves}
-    return sorted(move_evaluations, key=move_evaluations.get, reverse=True)
+    reverse = True if state.color == COLOR_WHITE else False
+    #reverse = True
+    return sorted(move_evaluations, key=move_evaluations.get, reverse=reverse)
 
 def _get_move_evaluation(state, move):
     """
@@ -129,8 +135,8 @@ def _get_move_evaluation(state, move):
     if entry is not None:
         evaluation = entry.evaluation
         # Here we have to change the evaluation the other way around as we did push() which changes the color
-        if entry.color == state.color:
-            evaluation = - evaluation
+        #if entry.color == state.color:
+        #    evaluation = - evaluation
     else:
         # TODO: Check what the best value for unexplored moves is
         evaluation = 0

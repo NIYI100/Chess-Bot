@@ -4,7 +4,7 @@ import argparse
 import sys
 from Application.BoardModel.boardConversion import set_fen_to_board
 from Application.MoveGeneration.bestMoveGeneration import iterative_deepening
-
+clean_transposition_table = 0
 
 def talk():
     """
@@ -71,7 +71,12 @@ def command(max_depth, time_to_run, state, msg):
             state.execute_move(move)
 
     if msg[0:2] == "go":
+        global clean_transposition_table
         _move = iterative_deepening(max_depth, state, time_to_run)
+        if clean_transposition_table == 10:
+            clean_transposition_table = 0
+        else:
+            clean_transposition_table += 1
         print("bestmove ", _move)
         return
 
@@ -82,7 +87,7 @@ def get_depth():
     The default depth is 10
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--depth", default=10, help="Provide an integer (default: 10)")
+    parser.add_argument("--depth", default=4, help="Provide an integer (default: 10)")
     args = parser.parse_args()
     return max([1, int(args.depth)])
 
@@ -92,6 +97,6 @@ def get_time_to_run():
     The default time is 4.5s
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--time", type=float, default=4.5, help="Provide an float (default: 4.5)")
+    parser.add_argument("--time", type=float, default=50, help="Provide an float (default: 4.5)")
     args = parser.parse_args()
     return max([1.0, float(args.time)])
